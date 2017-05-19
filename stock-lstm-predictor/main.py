@@ -43,13 +43,13 @@ def load_data(dir):
 	
 	x = []
 
-	min0 = 99999999999
-	max0 = 0
-	min1 = 99999999999
-	max1 = 0
-
 	for data_file in data_files:
 		with open(join(dir, data_file), 'r') as file:
+			min0 = 99999999999
+			max0 = 0
+			min1 = 99999999999
+			max1 = 0
+		
 			data_points = []
 
 			data_reader = csv.reader(file)
@@ -100,7 +100,6 @@ def load_data(dir):
 		if flag == 0:
 			x_train = x_tmp
 			y_train = y_tmp
-			
 		else:
 			x_train = numpy.concatenate((x_train, x_tmp))
 			y_train = numpy.concatenate((y_train, y_tmp))
@@ -137,7 +136,7 @@ def train_model():
 		for data_point in data_set:
 			plot_prices.append(data_point[0])
 			plot_volumes.append(data_point[1])
-		plot_predictions.append(model.predict(data_set))
+		#plot_predictions.append(model.predict(numpy.array([data_set])))
 	
 	plot(plot_prices, plot_volumes, plot_predictions)
 
