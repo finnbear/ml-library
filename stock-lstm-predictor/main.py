@@ -13,7 +13,7 @@ maxlen = None
 timesteps = 10
 pred_length = 5
 batch_size = 10
-epochs = 2
+epochs = 20
 
 def plot(prices, volumes, predictions):
 	fig = plt.figure()
@@ -106,7 +106,47 @@ def load_data(dir):
 
 	#y_train = [np_utils.to_categorical(x) for x in y_train]
 
+	# Do more min/max scaling
+	for i in range(x_train.shape[0]):
+		x0_min = 1.
+		x0_max = 0.
+		x1_min = 1.
+		x1_max = 0.
+	
+		for j in range(x_train[i].shape[0]):
+			pt = x_train[i][j]
+		
+			if pt[0] < x0_min:
+				x0_min = pt[0]
+			if pt[0] > x0_max:
+				x0_max = pt[0]
+			if pt[1] < x1_min:
+				x1_min = pt[1]
+			if pt[1] > x1_max:
+				x1_max = pt[1]
+				
+		for j in range(x_train[i].shape[0]):
+			x_train[i][j][0] = (float(x_train[i][j][0]) - x0_min) / (x0_max - x0_min)
+			x_train[i][j][1] = (float(x_train[i][j][1]) - x1_min) / (x1_max - x1_min)
+	'''	
+	for seq in y_train:
+		y_min = 1.
+		y_max = 0.
+	
+		for pt in seq:
+			if pt[0] < y_min:
+				y_min = pt[0]
+			if pt[0] > y_max:
+				y_max = pt[0]
+				
+		for pt in seq:
+			pt[0] = (float(pt[0]) - y_min) / (y_max - y_min)
+			pt[1] = (float(pt[1]) - y_min) / (y_max - y_min)
+'''
 	y_train = numpy.reshape(y_train, (maxlen - timesteps - pred_length, 1))
+
+	print x_train[0]
+	print y_train[0]
 
 	print x_train.shape
 	print y_train.shape
@@ -132,7 +172,7 @@ def train_model():
 	plot_volumes = []
 	plot_predictions = []
 	
-	for data_set in x_train:
+	for data_set in x_train[:4]:
 		for data_point in data_set:
 			plot_prices.append(data_point[0])
 			plot_volumes.append(data_point[1])
