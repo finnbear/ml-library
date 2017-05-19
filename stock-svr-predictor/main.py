@@ -43,6 +43,6 @@ def predict_price(input):
 
 load_data('pacb.csv')
 
-prediction = predict_price(20)
+prediction = predict_price(40)
 
 print prediction
