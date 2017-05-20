@@ -5,6 +5,7 @@ from keras.layers import Activation, Dense, Dropout, Flatten
 from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.preprocessing.image import ImageDataGenerator
 from keras import optimizers
+from keras.callbacks import ModelCheckpoint
 import numpy
 from keras import backend as K
 K.set_image_dim_ordering('th')
@@ -12,14 +13,17 @@ K.set_image_dim_ordering('th')
 img_size = 150
 batch_size = 16
 
-epochs = 1
-samples_per_epoch = 2048
+epochs = 200
+steps_per_epoch = 256
 
 datagen = ImageDataGenerator() #rescale=1./255)
 
 training_generator = datagen.flow_from_directory('data/training', target_size=(img_size, img_size), batch_size=batch_size, class_mode='binary')
 
 validation_generator = datagen.flow_from_directory('data/validation', target_size=(img_size, img_size), batch_size=batch_size * 2, class_mode='binary')
+
+print 'Training classes: ' + str(training_generator.class_indices)
+print 'Validation classes: ' + str(validation_generator.class_indices)
 
 model = Sequential()
 
@@ -36,8 +40,6 @@ conv_layer(first=True)
 conv_layer()
 conv_layer()
 
-print model.output_shape
-
 model.add(Flatten())
 model.add(Dense(64, input_shape=(batch_size, 3)))
 model.add(Activation('relu'))
@@ -45,9 +47,11 @@ model.add(Dropout(0.5))
 model.add(Dense(1))
 model.add(Activation('sigmoid'))
 
+checkpoint = ModelCheckpoint('models/cnn.{epoch:03d}.h5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
+
 model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 
-model.fit_generator(training_generator, epochs=epochs, steps_per_epoch=samples_per_epoch, validation_data=validation_generator, validation_steps=100)
+model.fit_generator(training_generator, epochs=epochs, steps_per_epoch=steps_per_epoch, validation_data=validation_generator, validation_steps=32, callbacks=[checkpoint])
 
 model.save_weights('models/cnn.h5')
 
